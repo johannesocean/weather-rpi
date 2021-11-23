@@ -1,0 +1,126 @@
+converters:
+  dates: !!python/name:weather_rpi.converters.timestamps.DateFormatter ''
+  temps: !!python/name:weather_rpi.converters.temperature.TempFormatter ''
+
+mapper:
+  timestamp:
+    weather_db_field: RecTime
+  year:
+    weather_db_field: RecTime
+    converter: dates
+  month:
+    weather_db_field: RecTime
+    converter: dates
+  day:
+    weather_db_field: RecTime
+    converter: dates
+  hour:
+    weather_db_field: RecTime
+    converter: dates
+  intemp:
+    weather_db_field: InTemp
+    converter: temps
+  outtemp:
+    weather_db_field: Ch1Temp
+    converter: temps
+  outhumi:
+    weather_db_field: Ch1Humi
+  outdew:
+    weather_db_field: Ch1DewPoint
+    converter: temps
+  outfeel:
+    weather_db_field: Ch1FeelLike
+    converter: temps
+  winsp:
+    weather_db_field: Wind
+  gust:
+    weather_db_field: Gust
+  windir:
+    weather_db_field: WindDir
+  presabs:
+    weather_db_field: AbsBaro
+  presrel:
+    weather_db_field: RelBaro
+  rainh:
+    weather_db_field: Rain3
+  raind:
+    weather_db_field: Rain4
+  rainw:
+    weather_db_field: Rain6
+  rainm:
+    weather_db_field: Rain7
+  raint:
+    weather_db_field: Rain8
+
+db_fields:
+  - timestamp
+  - year
+  - month
+  - day
+  - hour
+  - intemp
+  - outtemp
+  - outhumi
+  - outdew
+  - outfeel
+  - winsp
+  - gust
+  - windir
+  - presabs
+  - presrel
+  - rainh
+  - raind
+  - rainw
+  - rainm
+  - raint
+
+weather_db_fields:
+  - DevID
+  - RecTime
+  - InTemp
+  - InHumi
+  - Ch1Temp
+  - Ch2Temp
+  - Ch3Temp
+  - Ch4Temp
+  - Ch5Temp
+  - Ch6Temp
+  - Ch7Temp
+  - Ch8Temp
+  - Ch1Humi
+  - Ch2Humi
+  - Ch3Humi
+  - Ch4Humi
+  - Ch5Humi
+  - Ch6Humi
+  - Ch7Humi
+  - Ch8Humi
+  - Ch1DewPoint
+  - Ch2DewPoint
+  - Ch3DewPoint
+  - Ch4DewPoint
+  - Ch5DewPoint
+  - Ch6DewPoint
+  - Ch7DewPoint
+  - Ch8DewPoint
+  - Ch1FeelLike
+  - Ch2FeelLike
+  - Ch3FeelLike
+  - Ch4FeelLike
+  - Ch5FeelLike
+  - Ch6FeelLike
+  - Ch7FeelLike
+  - Ch8FeelLike
+  - AbsBaro
+  - RelBaro
+  - Wind
+  - Gust
+  - WindDir
+  - Rain1
+  - Rain2
+  - Rain3
+  - Rain4
+  - Rain5
+  - Rain6
+  - Rain7
+  - Rain8

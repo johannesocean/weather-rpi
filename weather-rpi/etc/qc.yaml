@@ -1,0 +1,60 @@
+qc_routines:
+  dates: !!python/name:weather_rpi.qc.dates.QCDates ''
+  ranges: !!python/name:weather_rpi.qc.ranges.QCRanges ''
+
+qc:
+  timestamp:
+    routine: dates
+  year:
+    routine: dates
+  month:
+    routine: dates
+  day:
+    routine: dates
+  hour:
+    routine: dates
+  intemp:
+    routine: ranges
+    range: [ 1, 60 ]
+  outtemp:
+    routine: ranges
+    range: [ -40, 40 ]
+  outhumi:
+    routine: ranges
+    range: [ 1, 150 ]
+  outdew:
+    routine: ranges
+    range: [ -40, 40 ]
+  outfeel:
+    routine: ranges
+    range: [ -50, 40 ]
+  winsp:
+    routine: ranges
+    range: [ 0, 50 ]
+  gust:
+    routine: ranges
+    range: [ 0, 50 ]
+  windir:
+    routine: ranges
+    range: [ 0, 360 ]
+  presabs:
+    routine: ranges
+    range: [ 940, 1070 ]
+  presrel:
+    routine: ranges
+    range: [ 940, 1070 ]
+  rainh:
+    routine: ranges
+    range: [ 0, 100 ]
+  raind:
+    routine: ranges
+    range: [ 0, 200 ]
+  rainw:
+    routine: ranges
+    range: [ 0, 500 ]
+  rainm:
+    routine: ranges
+    range: [ 0, 1000 ]
+  raint:
+    routine: ranges
+    range: [ 0, 10000 ]

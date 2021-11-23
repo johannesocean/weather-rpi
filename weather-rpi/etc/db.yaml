@@ -1,0 +1,4 @@
+pi_db:
+  !!python/name:weather_rpi.connector.RpiDB ''
+weatherstation_db:
+  !!python/name:weather_rpi.connector.WeatherStationDB ''
