@@ -38,7 +38,7 @@ def updater():
 
 
 if __name__ == '__main__':
-    start()
+    # start()
     import time
 
     # start_time = time.time()
