@@ -51,6 +51,12 @@ class RpiDB:
         """Doc."""
         return pd.read_sql('select * from weather', self.conn)
 
+    def get_last_timestamp(self):
+        """Doc."""
+        return pd.read_sql(
+            'select timestamp from weather order by rowid desc limit 1', self.conn
+        )['timestamp'][0]
+
     def get_time_log(self):
         """Doc."""
         query = """select timestamp from weather"""

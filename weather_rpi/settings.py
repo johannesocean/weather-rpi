@@ -8,13 +8,29 @@ import os
 import glob
 import yaml
 import copy
+import pandas as pd
 from weather_rpi import utils
 
 
-class Settings:
+class BaseSettings:
     """Doc."""
 
     def __init__(self):
+        super(BaseSettings, self).__init__()
+        self.db_fields = None
+        self.mapper = None
+        self.qc_routines = None
+        self.qc = None
+        self.converters = None
+        self.pi_db = None
+        self.weatherstation_db = None
+
+
+class Settings(BaseSettings):
+    """Doc."""
+
+    def __init__(self):
+        super(Settings, self).__init__()
         base = utils.get_base_folder()
         for fpath in glob.glob(os.path.join(base, r'etc\*.yaml')):
             with open(fpath) as fd:

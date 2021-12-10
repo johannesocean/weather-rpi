@@ -22,9 +22,11 @@ def get_base_folder():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def get_timestamp_string(today=False, yesterday=False, fmt='%Y-%m-%d'):
+def get_today_timestring():
     """Docen."""
-    if today:
-        return pd.Timestamp.today().strftime(fmt)
-    elif yesterday:
-        return (pd.Timestamp.today() - pd.Timedelta(days=1)).strftime(fmt)
+    return pd.Timestamp.today().strftime('%Y-%m-%d')
+
+
+def get_yesterday_timestring():
+    """Docen."""
+    return (pd.Timestamp.today() - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
