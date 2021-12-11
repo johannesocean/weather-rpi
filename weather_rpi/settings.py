@@ -8,7 +8,6 @@ import os
 import glob
 import yaml
 import copy
-import pandas as pd
 from weather_rpi import utils
 
 

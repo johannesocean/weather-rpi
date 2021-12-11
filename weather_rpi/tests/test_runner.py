@@ -4,7 +4,6 @@ Created on 2021-11-21 16:00
 
 @author: johannes
 """
-import pandas as pd
 import requests
 import json
 import time
@@ -13,7 +12,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from weather_rpi.settings import Settings
 from weather_rpi.data_handler import DataHandler
-from weather_rpi.utils import get_today_timestring, get_yesterday_timestring
+from weather_rpi import utils
 
 settings = Settings()
 dh = DataHandler(settings)
@@ -26,15 +25,33 @@ def start_job(func, minutes_interval=5):
 
 
 def updater():
-    print('updater', datetime.now())
+    print('updater', utils.get_now_timestring())
     db_rpi = settings.pi_db()
     db_weather = settings.weatherstation_db()
-    ts1 = get_today_timestring()
-    ts2 = get_yesterday_timestring()
+    ts1 = utils.get_today_timestring()
+    ts2 = utils.get_yesterday_timestring()
     time_log = db_rpi.get_recent_time_log(tag_today=ts1, tag_yesterday=ts2)
     weather_data = db_weather.get_recent_data(tag_today=ts1, tag_yesterday=ts2)
     dh.append(weather_data)
-    new_data = dh.get_filterd_data(time_log.timestamp.values)
+    new_data = dh.get_filtered_data(time_log.timestamp.values)
+    if not new_data.empty:
+        print('new_data')
+        db_rpi.post(new_data)
+
+
+def updater_v2():
+    print('updater', utils.get_now_timestring())
+    db_rpi = settings.pi_db()
+    db_weather = settings.weatherstation_db()
+
+    ts1 = utils.get_today_timestring()
+    ts2 = utils.get_yesterday_timestring()
+    weather_data = db_weather.get_recent_data(tag_today=ts1, tag_yesterday=ts2)
+    dh.append(weather_data)
+
+    last_recorded_timestamp = db_rpi.get_last_timestamp()
+    new_data = dh.get_filtered_data(None, last_ts=last_recorded_timestamp)
+
     if not new_data.empty:
         print('new_data')
         db_rpi.post(new_data)
