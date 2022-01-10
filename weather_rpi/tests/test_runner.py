@@ -4,9 +4,11 @@ Created on 2021-11-21 16:00
 
 @author: johannes
 """
+import os
 import requests
 import json
 import time
+import pandas as pd
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -58,10 +60,25 @@ def updater_v2():
 
 
 def link(data):
-    requests.request("PATCH", 'http://localhost:5000/import',
-                     data=json.dumps(data),
-                     headers={'Content-type': 'application/json'}
-                     )
+    return requests.request(
+        "PUT", '',
+        data=json.dumps(data),
+        headers={
+            'Content-type': 'application/json',
+            'apikey': ""
+        }
+    )
+
+
+def api_timelog_call():
+    url = ""
+    return requests.request(
+        "GET", url,
+        headers={
+            "Content-Type": "text",
+            "apikey": ""
+        }
+    )
 
 
 def poster():
@@ -69,18 +86,40 @@ def poster():
     db_rpi = settings.pi_db()
     df = db_rpi.get()
     data = {key: df[key].to_list() for key in df.columns}
-    data['utmid'] = 'JA'
     link(data)
 
 
-if __name__ == '__main__':
+def puter():
     db_rpi = settings.pi_db()
-    start_time = time.time()
+    data = db_rpi.get()
+    data['presrel'] = data['presrel'].round(1)
+    ts_serie = data['timestamp'].apply(pd.Timestamp)
+    resp = api_timelog_call()
+    last_timestamp = pd.Timestamp(resp.json()['time_log'][-1])
+    boolean = ts_serie > last_timestamp
+    print(last_timestamp)
+    put_data = {key: data.loc[boolean, key].to_list() for key in data.columns}
+    print(put_data)
+    return link(put_data)
 
-    df = db_rpi.get_last_timestamp()
+
+if __name__ == '__main__':
+    ts_resp = api_timelog_call()
+    # resp = puter()
+    # db_rpi = settings.pi_db()
+    # db_weather = settings.weatherstation_db()
+    # weather_data = db_weather.get()
+    # dh.append(weather_data)
+    # last_ts = db_rpi.get_last_timestamp()
+    # new_data = dh.get_filtered_data(None, last_ts=pd.Timestamp(last_ts))
+    # if not new_data.empty:
+    #     print('new_data')
+    #     db_rpi.post(new_data)
+    # start_time = time.time()
+    # df = db_rpi.get_last_timestamp()
     # df = db_rpi.get_time_log()
-
-    print("Timeit:--%.5f sec" % (time.time() - start_time))
+    # l = api_timtreuelog_call()
+    # print("Timeit:--%.5f sec" % (time.time() - start_time))
 
     # print('started: {}'.format(datetime.now()))
     #start_job(updater)

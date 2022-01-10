@@ -32,7 +32,7 @@ class Log:
     def write(self, head, message):
         """Write."""
         if self.log_path:
-            with open(self.log_path, "w") as file:
+            with open(self.log_path, "a") as file:
                 file.write('{}: {} - {}\n'.format(self.time_now, head, message))
         else:
             print('No logfile to write to? log_directory was not given at init. Sad face..')

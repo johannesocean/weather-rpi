@@ -1,5 +1,6 @@
 converters:
   dates: !!python/name:weather_rpi.converters.timestamps.DateFormatter ''
+  round: !!python/name:weather_rpi.converters.rounder.RounderFormatter ''
   temps: !!python/name:weather_rpi.converters.temperature.TempFormatter ''
 
 mapper:
@@ -25,6 +26,7 @@ mapper:
     converter: temps
   outhumi:
     weather_db_field: Ch1Humi
+    converter: round
   outdew:
     weather_db_field: Ch1DewPoint
     converter: temps
@@ -33,24 +35,34 @@ mapper:
     converter: temps
   winsp:
     weather_db_field: Wind
+    converter: round
   gust:
     weather_db_field: Gust
+    converter: round
   windir:
     weather_db_field: WindDir
+    converter: round
   presabs:
     weather_db_field: AbsBaro
+    converter: round
   presrel:
     weather_db_field: RelBaro
+    converter: round
   rainh:
     weather_db_field: Rain3
+    converter: round
   raind:
     weather_db_field: Rain4
+    converter: round
   rainw:
     weather_db_field: Rain6
+    converter: round
   rainm:
     weather_db_field: Rain7
+    converter: round
   raint:
     weather_db_field: Rain8
+    converter: round
 
 db_fields:
   - timestamp
