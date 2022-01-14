@@ -80,8 +80,8 @@ class RpiDB:
         """Doc."""
         conn = get_db_conn()
         return pd.read_sql(
-            'select timestamp from weather order by rowid desc limit 1', conn
-        )['timestamp'][0]
+            'select MAX(timestamp) as ts from weather', conn
+        )['ts'][0]
 
     @staticmethod
     def get_time_log():
