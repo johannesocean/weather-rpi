@@ -42,9 +42,6 @@ class DataHandler:
 
         self.df = self.df.replace({np.nan: None})
 
-    def get_filtered_data(self, exclude_timestamps, last_ts=None):
+    def get_filtered_data(self, last_ts=None):
         """Doc."""
-        if last_ts:
-            return self.df.loc[self.df['timestamp'] > last_ts, :]
-        else:
-            return self.df.loc[~self.df['timestamp'].isin(exclude_timestamps), :]
+        return self.df.loc[self.df['timestamp'] > last_ts, :]

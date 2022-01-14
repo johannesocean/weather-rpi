@@ -104,14 +104,16 @@ def puter():
 
 
 if __name__ == '__main__':
-    ts_resp = api_timelog_call()
+    # ts_resp = api_timelog_call()
+    # print(ts_resp.json()['time_log'][-1])
     # resp = puter()
-    # db_rpi = settings.pi_db()
-    # db_weather = settings.weatherstation_db()
-    # weather_data = db_weather.get()
-    # dh.append(weather_data)
-    # last_ts = db_rpi.get_last_timestamp()
-    # new_data = dh.get_filtered_data(None, last_ts=pd.Timestamp(last_ts))
+    db_rpi = settings.pi_db()
+    db_weather = settings.weatherstation_db()
+    last_ts = db_rpi.get_last_timestamp()
+    last_ts = pd.Timestamp(last_ts)
+    weather_data = db_weather.get_new_data(timetag=last_ts.strftime('%Y-%m-%d'))
+    dh.append(weather_data)
+    new_data = dh.get_filtered_data(last_ts=last_ts)
     # if not new_data.empty:
     #     print('new_data')
     #     db_rpi.post(new_data)

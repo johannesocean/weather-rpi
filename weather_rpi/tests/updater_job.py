@@ -50,13 +50,12 @@ def local_updater():
     db_weather = settings.weatherstation_db()
     dh.reset_dataframe()
 
-    ts1 = utils.get_today_timestring()
-    ts2 = utils.get_yesterday_timestring()
-    weather_data = db_weather.get_recent_data(tag_today=ts1, tag_yesterday=ts2)
-    dh.append(weather_data)
+    last_ts = db_rpi.get_last_timestamp()
+    last_ts = pd.Timestamp(last_ts)
+    weather_data = db_weather.get_new_data(timetag=last_ts.strftime('%Y-%m-%d'))
 
-    last_recorded_timestamp = pd.Timestamp(db_rpi.get_last_timestamp())
-    new_data = dh.get_filtered_data(None, last_ts=last_recorded_timestamp)
+    dh.append(weather_data)
+    new_data = dh.get_filtered_data(last_ts=last_ts)
 
     if not new_data.empty:
         db_rpi.post(new_data)

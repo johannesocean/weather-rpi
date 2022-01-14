@@ -37,6 +37,14 @@ class WeatherStationDB:
             conn
         )
 
+    def get_new_data(self, timetag=None):
+        """Doc."""
+        conn = get_weather_db_conn()
+        query = """
+        select * from Record where RecTime >= DateValue('"""+timetag+"""')
+        """
+        return pd.read_sql(query, conn)
+
     @property
     def query(self):
         # return """select * from Record where (RecTime like '"""+self.start_time+"""%')"""
