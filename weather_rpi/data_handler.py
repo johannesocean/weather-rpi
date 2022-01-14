@@ -34,6 +34,9 @@ class DataHandler:
                         self.df[db_name] = data[weather_db_field]
                 self._qc()
 
+            if not self.df.empty:
+                self.df = self.df.sort_values('timestamp').reset_index(drop=True)
+
     def _qc(self):
         """Doc."""
         for db_name, cfig in self.settings.qc.items():

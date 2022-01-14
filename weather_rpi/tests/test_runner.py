@@ -114,9 +114,9 @@ if __name__ == '__main__':
     weather_data = db_weather.get_new_data(timetag=last_ts.strftime('%Y-%m-%d'))
     dh.append(weather_data)
     new_data = dh.get_filtered_data(last_ts=last_ts)
-    # if not new_data.empty:
-    #     print('new_data')
-    #     db_rpi.post(new_data)
+    if not new_data.empty:
+        print('new_data')
+        db_rpi.post(new_data)
     # start_time = time.time()
     # df = db_rpi.get_last_timestamp()
     # df = db_rpi.get_time_log()
