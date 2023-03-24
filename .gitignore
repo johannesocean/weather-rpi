@@ -4,6 +4,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Repo specific
+weather_rpi/logsessions/*
+weather_rpi/tests/log_sessions/*
+
 # C extensions
 *.so
 

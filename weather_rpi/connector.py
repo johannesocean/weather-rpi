@@ -6,50 +6,57 @@ Created on 2021-11-20 23:07
 """
 import os
 import sqlite3
-import pyodbc
 import pandas as pd
+from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy.sql import text
+
+#"access+pyodbc:///?odbc_connect=Driver=Microsoft Access Driver (*.mdb, *.accdb);Dbq=C:\ProgramData\WeatherHome\WeatherHome.mdb;"
+engine = create_engine(os.getenv("DB_CONNECTION_STRING", "access+pyodbc:///?odbc_connect=Driver=Microsoft Access Driver (*.mdb, *.accdb);Dbq=C:\ProgramData\WeatherHome\WeatherHome.mdb;"))
+metadata = MetaData()
+table = Table("Record", metadata, autoload_with=engine)
+columns = [c.name for c in table.columns]
 
 
-def get_weather_db_conn():
-    """Doc."""
-    return pyodbc.connect(
-        DRIVER=os.getenv('WEATHERDBDRIVER'),
-        DBQ=os.getenv('WEATHERDB')
-    )
+def query_data(query, columns=None):
+    with engine.connect() as conn:
+        result = conn.execute(text(query))
+        data = result.fetchall()
+    return pd.DataFrame(data=data, columns=columns)
 
 
 class WeatherStationDB:
-    """Doc."""
 
     def __init__(self):
-        pass
+        self._columns = None
 
     def get(self):
-        """Doc."""
-        conn = get_weather_db_conn()
-        return pd.read_sql(self.query, conn)
+        return query_data(self.query, columns=self.columns)
 
     def get_recent_data(self, tag_today=None, tag_yesterday=None):
-        """Doc."""
-        conn = get_weather_db_conn()
-        return pd.read_sql(
+        return query_data(
             """select * from Record where (RecTime like '"""+tag_today+"""%' or RecTime like '"""+tag_yesterday+"""%')""",
-            conn
+            columns=self.columns
         )
 
     def get_new_data(self, timetag=None):
-        """Doc."""
-        conn = get_weather_db_conn()
-        query = """
-        select * from Record where RecTime >= DateValue('"""+timetag+"""')
-        """
-        return pd.read_sql(query, conn)
+        return query_data(
+            """select * from Record where RecTime >= DateValue('"""+timetag+"""')""",
+            columns=self.columns
+        )
 
     @property
     def query(self):
         # return """select * from Record where (RecTime like '"""+self.start_time+"""%')"""
         return """select * from Record"""
         # return """select * from Record where (RecTime like '2021-10-20%' or RecTime like '2021-11-21%')"""
+
+    @property
+    def columns(self):
+        return self._columns
+
+    @columns.setter
+    def columns(self, values):
+        self._columns = values
 
 
 def get_db_conn():
@@ -126,3 +133,8 @@ class RpiDB:
     @end_time.setter
     def end_time(self, period):
         self._end_time = (pd.Timestamp(period) + pd.Timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+
+
+if __name__ == "__main__":
+    w = WeatherStationDB()
+    w.columns = columns

@@ -6,6 +6,8 @@ Created on 2021-12-11 15:17
 
 COPY THIS FILE TO WHEREVER YOU WOULD LIKE TO RUN IT.
 """
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import time
 import requests
@@ -48,6 +50,7 @@ def local_updater():
     """
     db_rpi = settings.pi_db()
     db_weather = settings.weatherstation_db()
+    db_weather.columns = settings.weather_db_fields
     dh.reset_dataframe()
 
     last_ts = db_rpi.get_last_timestamp()
@@ -88,17 +91,19 @@ def api_updater():
 
 
 if __name__ == '__main__':
-    while True:
-        try:
-            local_updater()
-        except Exception as e:
-            LOG.write('error-LOCAL', str(e))
-
-        time.sleep(150)  # Pause for 2.30 min..
-
-        try:
-            api_updater()
-        except Exception as e:
-            LOG.write('error-API', str(e))
-
-        time.sleep(150)  # Pause for 2.30 min..
+    tl = api_timelog_call()
+    print(tl.json())
+    # while True:
+    #     try:
+    #         local_updater()
+    #     except Exception as e:
+    #         LOG.write('error-LOCAL', str(e))
+    #
+    #     time.sleep(150)  # Pause for 2.30 min..
+    #
+    #     try:
+    #         api_updater()
+    #     except Exception as e:
+    #         LOG.write('error-API', str(e))
+    #
+    #     time.sleep(150)  # Pause for 2.30 min..
