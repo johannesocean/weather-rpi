@@ -28,33 +28,31 @@ def get_weather_db_conn():
     )
 
 
+def dict_factory(data: list[tuple], columns: list[str]):
+    """Return dict with data as lists."""
+    return {column: list(column_data) for column, column_data in zip(columns, zip(*data))}
+
+
+def get_data(query: str):
+    conn = get_weather_db_conn()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    _data = cursor.fetchall()
+    _data = dict_factory(_data, ACCESS_DB_COLUMNS)
+    return _data
+
+
 class WeatherStationDB:
 
-    def get(self):
-        conn = get_weather_db_conn()
-        return pd.read_sql(self.query, conn)
-
     def get_recent_data(self, tag_today=None, tag_yesterday=None):
-        conn = get_weather_db_conn()
-        return pd.read_sql(
-            """select * from Record where (RecTime like '"""+tag_today+"""%' or RecTime like '"""+tag_yesterday+"""%')""",
-            conn
-        )
-        # # rewrite using only pydbc and raw python
-        # cursor = conn.cursor()
-        # cursor.execute(
-        #     """select * from Record where (RecTime like '"""+tag_today+"""%' or RecTime like '"""+tag_yesterday+"""%')"""
-        # )
-        # data = cursor.fetchall()
-        # columns = [column[0] for column in cursor.description]  # this did not give me the right columns...
-
+        query = """select * from Record where (RecTime like '"""+tag_today+"""%' or RecTime like '"""+tag_yesterday+"""%')"""  # noqa E501
+        return get_data(query)
 
     def get_new_data(self, timetag=None):
-        conn = get_weather_db_conn()
         query = """
         select * from Record where RecTime >= DateValue('"""+timetag+"""')
         """
-        return pd.read_sql(query, conn)
+        return get_data(query)
 
     @property
     def query(self):
@@ -129,11 +127,14 @@ class RpiDB:
 
 
 if __name__ == '__main__':
-    os.environ['WEATHERDBDRIVER'] = 'Microsoft Access Driver (*.mdb, *.accdb)'
-    os.environ['WEATHERDB'] = "C:/ProgramData/WeatherHome/WeatherHome.mdb"
-    conn = get_weather_db_conn()
-    cursor = conn.cursor()
-    cursor.execute(
-        """select * from Record"""
-    )
-    data = cursor.fetchall()
+    # os.environ['WEATHERDBDRIVER'] = 'Microsoft Access Driver (*.mdb, *.accdb)'
+    # os.environ['WEATHERDB'] = "C:/ProgramData/WeatherHome/WeatherHome.mdb"
+    # conn = get_weather_db_conn()
+    # cursor = conn.cursor()
+    # cursor.execute(
+    #     """select * from Record"""
+    # )
+    # data = cursor.fetchall()
+    #
+    # data_dict = dict_factory(data, ACCESS_DB_COLUMNS)
+    conn = sqlite3.connect(r"C:\utv_privat\weather-rpi\weather_rpi\db\utm.db")

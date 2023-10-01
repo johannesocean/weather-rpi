@@ -5,13 +5,15 @@ Created on 2021-11-21 12:33
 @author: johannes
 """
 import os
-import pandas as pd
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime, timedelta
 
 
+TIME_STRING_FMT: str = '%Y-%m-%d %H:%M:%S'
+DATE_STRING_FMT: str = '%Y-%m-%d'
+
+
 class Log:
-    """Logger."""
 
     def __init__(self, log_directory=None):
         """Initialize."""
@@ -55,13 +57,12 @@ def get_base_folder():
 
 
 def get_now_timestring():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.now().strftime(TIME_STRING_FMT)
 
 
 def get_today_timestring():
-    # return pd.Timestamp.today().strftime('%Y-%m-%d')
-    return datetime.now().strftime('%Y-%m-%d')
+    return datetime.now().strftime(DATE_STRING_FMT)
 
 
 def get_yesterday_timestring():
-    return (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    return (datetime.now() - timedelta(days=1)).strftime(DATE_STRING_FMT)
