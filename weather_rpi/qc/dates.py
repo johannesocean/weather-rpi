@@ -4,14 +4,12 @@ Created on 2021-11-21 18:22
 
 @author: johannes
 """
-import pandas as pd
 
 
 class QCDates:
-    """Doc."""
 
     def __init__(self, serie, _):
-        self.serie = serie.copy()
+        self.serie = serie
 
     def __call__(self):
         """Return time object.
@@ -22,7 +20,8 @@ class QCDates:
             'day'
             'hour'
         """
-        boolean = pd.isnull(self.serie)
-        if boolean.any():
-            self.serie[boolean] = None
+        # not applicable when data has not been converted to pandas series.
+        # boolean = pd.isnull(self.serie)
+        # if boolean.any():
+        #     self.serie[boolean] = None
         return self.serie

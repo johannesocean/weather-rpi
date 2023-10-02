@@ -1,4 +1,0 @@
-
-get rOS on SD-card: https://www.raspberrypi.com/software/
-
-https://medium.com/datareply/realtime-streaming-data-pipeline-using-google-cloud-platform-and-bokeh-9dd0cfae647a

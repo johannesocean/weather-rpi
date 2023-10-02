@@ -7,7 +7,9 @@ Created on 2021-11-20 23:07
 import os
 import sqlite3
 import pyodbc
-import pandas as pd
+from datetime import datetime, timedelta
+
+from weather_rpi.utils import TIME_STRING_FMT
 
 
 ACCESS_DB_COLUMNS = [
@@ -18,7 +20,6 @@ ACCESS_DB_COLUMNS = [
     'Ch8FeelLike', 'AbsBaro', 'RelBaro', 'Wind', 'Gust', 'WindDir', 'Rain1', 'Rain2', 'Rain3', 'Rain4', 'Rain5',
     'Rain6', 'Rain7', 'Rain8'
 ]
-
 
 
 def get_weather_db_conn():
@@ -33,7 +34,7 @@ def dict_factory(data: list[tuple], columns: list[str]):
     return {column: list(column_data) for column, column_data in zip(columns, zip(*data))}
 
 
-def get_data(query: str):
+def get_weather_db_data(query: str) -> dict:
     conn = get_weather_db_conn()
     cursor = conn.cursor()
     cursor.execute(query)
@@ -46,13 +47,13 @@ class WeatherStationDB:
 
     def get_recent_data(self, tag_today=None, tag_yesterday=None):
         query = """select * from Record where (RecTime like '"""+tag_today+"""%' or RecTime like '"""+tag_yesterday+"""%')"""  # noqa E501
-        return get_data(query)
+        return get_weather_db_data(query)
 
     def get_new_data(self, timetag=None):
         query = """
         select * from Record where RecTime >= DateValue('"""+timetag+"""')
         """
-        return get_data(query)
+        return get_weather_db_data(query)
 
     @property
     def query(self):
@@ -62,10 +63,25 @@ class WeatherStationDB:
 
 
 def get_db_conn():
-    return sqlite3.connect(os.getenv('UTMDB'))
+    return sqlite3.connect(os.getenv('UTMDB', r"C:\utv_privat\weather-rpi\weather_rpi\db\utm.db"))
+
+
+def get_sqlite_data(query: str) -> dict:
+    """Return data from sqlite db."""
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    data = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    data = dict_factory(data, columns)
+    return data
 
 
 class RpiDB:
+
+    def __init__(self, start_time=None, end_time=None):
+        self._start_time = start_time
+        self._end_time = end_time
 
     @staticmethod
     def post(data):
@@ -74,67 +90,68 @@ class RpiDB:
 
     @staticmethod
     def get():
-        conn = get_db_conn()
-        return pd.read_sql('select * from weather', conn)
+        data = get_sqlite_data('select * from weather')
+        return data
 
     @staticmethod
     def get_last_timestamp():
-        conn = get_db_conn()
-        return pd.read_sql(
-            'select MAX(timestamp) as ts from weather', conn
-        )['ts'][0]
+        data = get_sqlite_data('select MAX(timestamp) as ts from weather')
+        return data['ts'][0]
 
     @staticmethod
     def get_time_log():
-        conn = get_db_conn()
-        query = """select timestamp from weather"""
-        return pd.read_sql(query, conn)
+        data = get_sqlite_data('select timestamp from weather')
+        return data
 
     @staticmethod
     def get_recent_time_log(tag_today=None, tag_yesterday=None):
-        conn = get_db_conn()
-        return pd.read_sql(
-            """select timestamp from weather where (timestamp like '"""+tag_today+"""%' 
-            or timestamp like '"""+tag_yesterday+"""%')""",
-            conn
-        )
+        query = """select timestamp from weather where (timestamp like '"""+tag_today+"""%' 
+            or timestamp like '"""+tag_yesterday+"""%')"""
+        data = get_sqlite_data(query)
+        return data
 
     def get_data_for_time_period(self):
-        conn = get_db_conn()
-        return pd.read_sql(
-            """select * from weather where timestamp between 
-            '"""+self.start_time+"""%' and '"""+self.end_time+"""%'""",
-            conn
-        )
+        query = """select * from weather where timestamp between 
+            '"""+self.start_time+"""%' and '"""+self.end_time+"""%'"""
+        data = get_sqlite_data(query)
+        return data
 
     @property
     def start_time(self):
-        """Return start of time window (pandas.Timestamp)"""
+        """Return start of time window."""
         return self._start_time
 
     @start_time.setter
     def start_time(self, period):
-        self._start_time = (pd.Timestamp(period) - pd.Timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+        if isinstance(period, str):
+            ts = datetime.strptime(period, TIME_STRING_FMT)
+        else:
+            ts = period
+        self._start_time = (ts - timedelta(hours=1)).strftime(TIME_STRING_FMT)
 
     @property
     def end_time(self):
-        """Return end of time window (pandas.Timestamp)"""
+        """Return end of time window."""
         return self._end_time
 
     @end_time.setter
     def end_time(self, period):
-        self._end_time = (pd.Timestamp(period) + pd.Timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+        if isinstance(period, str):
+            ts = datetime.strptime(period, TIME_STRING_FMT)
+        else:
+            ts = period
+        self._end_time = (ts + timedelta(hours=1)).strftime(TIME_STRING_FMT)
 
 
 if __name__ == '__main__':
-    # os.environ['WEATHERDBDRIVER'] = 'Microsoft Access Driver (*.mdb, *.accdb)'
-    # os.environ['WEATHERDB'] = "C:/ProgramData/WeatherHome/WeatherHome.mdb"
-    # conn = get_weather_db_conn()
-    # cursor = conn.cursor()
-    # cursor.execute(
-    #     """select * from Record"""
-    # )
-    # data = cursor.fetchall()
-    #
-    # data_dict = dict_factory(data, ACCESS_DB_COLUMNS)
-    conn = sqlite3.connect(r"C:\utv_privat\weather-rpi\weather_rpi\db\utm.db")
+    os.environ['WEATHERDBDRIVER'] = 'Microsoft Access Driver (*.mdb, *.accdb)'
+    os.environ['WEATHERDB'] = "C:/ProgramData/WeatherHome/WeatherHome.mdb"
+    rip = RpiDB()
+    data = rip.get()
+    # ts = rip.get_last_timestamp()
+    # ts_log = rip.get_time_log()
+    # data = get_weather_db_data("""select * from Record""")
+
+    pairs = list(zip(*data.values()))
+    pairs.sort()
+    sorted_data = {k: list(v) for k, v in zip(data.keys(), zip(*pairs))}

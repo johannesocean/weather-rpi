@@ -4,14 +4,15 @@ Created on 2021-11-21 14:59
 
 @author: johannes
 """
-import pandas as pd
+from datetime import datetime
+from weather_rpi.utils import TIME_STRING_FMT
 
 
 class DateFormatter:
     """Doc."""
 
     def __init__(self, serie, time_type):
-        self.serie = serie.apply(pd.Timestamp)
+        self.serie = serie
         self.time_type = time_type
 
     def __call__(self):
@@ -23,4 +24,7 @@ class DateFormatter:
             'day'
             'hour'
         """
-        return self.serie.dt.__getattribute__(self.time_type)
+        return [
+            getattr(datetime.strptime(t, TIME_STRING_FMT), self.time_type)
+            for t in self.serie
+        ]

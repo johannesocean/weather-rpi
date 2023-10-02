@@ -6,11 +6,14 @@ Created on 2021-12-11 15:17
 
 COPY THIS FILE TO WHEREVER YOU WOULD LIKE TO RUN IT.
 """
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import time
-import requests
 import json
-import pandas as pd
+import requests
+from datetime import datetime
+
 from weather_rpi.settings import Settings
 from weather_rpi.data_handler import DataHandler
 from weather_rpi import utils
@@ -51,13 +54,13 @@ def local_updater():
     dh.reset_dataframe()
 
     last_ts = db_rpi.get_last_timestamp()
-    last_ts = pd.Timestamp(last_ts)
-    weather_data = db_weather.get_new_data(timetag=last_ts.strftime('%Y-%m-%d'))
+    last_ts = datetime.strptime(last_ts, utils.DATE_STRING_FMT)
+    weather_data = db_weather.get_new_data(timetag=last_ts)
 
     dh.append(weather_data)
     new_data = dh.get_filtered_data(last_ts=last_ts)
 
-    if not new_data.empty:
+    if new_data:
         db_rpi.post(new_data)
         LOG.write('success', 'new data imported to database')
 
@@ -65,17 +68,19 @@ def local_updater():
 def api_updater():
     """Update the API database with data from the primary database."""
     db_rpi = settings.pi_db()
-    resp_timelog = api_timelog_call()
-    api_last_timestamp = pd.Timestamp(resp_timelog.json()['time_log'][-1])
-    db_rpi.start_time = api_last_timestamp
-    db_rpi.end_time = pd.Timestamp.now()
-    data = db_rpi.get_data_for_time_period()
-    ts_serie = data['timestamp'].apply(pd.Timestamp)
-    boolean = ts_serie > api_last_timestamp
-    data = data.loc[boolean, :]
+    timelog = api_timelog_call()
+    last_ts = timelog.json()['time_log'][-1]
 
-    if not data.empty:
-        put_data = {key: data[key].to_list() for key in data.columns}
+    api_last_timestamp = datetime.strptime(last_ts, utils.TIME_STRING_FMT)
+    db_rpi.start_time = api_last_timestamp
+    db_rpi.end_time = datetime.now()
+    data = db_rpi.get_data_for_time_period()
+
+    dt_serie = [datetime.strptime(t, utils.TIME_STRING_FMT) for t in data['timestamp']]
+    idx = next((i for i, dt in enumerate(dt_serie) if dt > api_last_timestamp), None)
+
+    if idx:
+        put_data = {key: values[idx:] for key, values in data.items()}
         resp = api_put(put_data)
 
         if resp.status_code == 200:

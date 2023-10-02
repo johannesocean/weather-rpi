@@ -18,5 +18,4 @@ class TempFormatter:
 
         Converts fahrenheit to Celsius.
         """
-        temps = (self.serie - 32) / 1.8
-        return temps.apply(lambda x: round_value(x, nr_decimals=2))
+        return [round_value((x - 32) / 1.8, nr_decimals=2) for x in self.serie]
