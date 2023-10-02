@@ -12,15 +12,21 @@ import os
 import time
 import json
 import requests
+from pathlib import Path
 from datetime import datetime
 
 from weather_rpi.settings import Settings
 from weather_rpi.data_handler import DataHandler
 from weather_rpi import utils
 
+base_directory = Path(__file__).parent
+
 settings = Settings()
 dh = DataHandler(settings)
-LOG = utils.Log(log_directory='log_sessions')
+
+log_dir = base_directory.joinpath('log_sessions')
+log_dir.mkdir(exist_ok=True)
+logger = utils.get_file_logger(str(log_dir.joinpath("log_session")))
 
 
 def api_put(data):
@@ -62,7 +68,7 @@ def local_updater():
 
     if new_data:
         db_rpi.post(new_data)
-        LOG.write('success', 'new data imported to database')
+        logger.info('success - new data imported to database')
 
 
 def api_updater():
@@ -84,12 +90,9 @@ def api_updater():
         resp = api_put(put_data)
 
         if resp.status_code == 200:
-            LOG.write('success', 'new data sent to server')
+            logger.info('success - new data sent to server')
         else:
-            LOG.write(
-                'WARNING',
-                'data could not be sent due to error code {}'.format(resp.status_code)
-            )
+            logger.warning('data could not be sent due to error code {}'.format(resp.status_code))
 
 
 if __name__ == '__main__':
@@ -97,13 +100,13 @@ if __name__ == '__main__':
         try:
             local_updater()
         except Exception as e:
-            LOG.write('error-LOCAL', str(e))
+            logger.error('LOCAL-error', str(e))
 
         time.sleep(150)  # Pause for 2.30 min..
 
         try:
             api_updater()
         except Exception as e:
-            LOG.write('error-API', str(e))
+            logger.error('API-error', str(e))
 
         time.sleep(150)  # Pause for 2.30 min..
