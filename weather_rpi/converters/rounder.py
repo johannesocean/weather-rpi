@@ -15,4 +15,4 @@ class RounderFormatter:
 
     def __call__(self):
         """Return rounded values (1 decimal)."""
-        return self.serie.apply(lambda x: round_value(x, nr_decimals=1))
+        return [round_value(x, nr_decimals=1) for x in self.serie]
