@@ -105,14 +105,12 @@ class RpiDB:
 
     @staticmethod
     def get_recent_time_log(tag_today=None, tag_yesterday=None):
-        query = """select timestamp from weather where (timestamp like '"""+tag_today+"""%' 
-            or timestamp like '"""+tag_yesterday+"""%')"""
+        query = """select timestamp from weather where (timestamp like '"""+tag_today+"""%' or timestamp like '"""+tag_yesterday+"""%')"""  # noqa E501
         data = get_sqlite_data(query)
         return data
 
     def get_data_for_time_period(self):
-        query = """select * from weather where timestamp between 
-            '"""+self.start_time+"""%' and '"""+self.end_time+"""%'"""
+        query = """select * from weather where timestamp between '"""+self.start_time+"""%' and '"""+self.end_time+"""%'"""  # noqa E501
         data = get_sqlite_data(query)
         return data
 

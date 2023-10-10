@@ -31,9 +31,7 @@ def get_file_logger(logger_name: str = "log_session"):
 
 def round_value(value, nr_decimals=3):
     return float(Decimal(str(value)).quantize(
-        Decimal('%%1.%sf' % nr_decimals % 1),
-        rounding=ROUND_HALF_UP)
-    )
+        Decimal('%%1.%sf' % nr_decimals % 1), rounding=ROUND_HALF_UP))
 
 
 def get_base_folder():
