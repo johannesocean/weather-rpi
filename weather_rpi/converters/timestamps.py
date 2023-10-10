@@ -9,7 +9,6 @@ from weather_rpi.utils import TIME_STRING_FMT
 
 
 class DateFormatter:
-    """Doc."""
 
     def __init__(self, serie, time_type):
         self.serie = serie

@@ -8,7 +8,6 @@ from weather_rpi.utils import round_value
 
 
 class TempFormatter:
-    """Doc."""
 
     def __init__(self, serie, _):
         self.serie = serie
